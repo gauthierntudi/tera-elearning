@@ -159,7 +159,6 @@ if (isset($_SESSION['user_id'])) {
 
 
     <div class="content-wrapper  js-content-wrapper">
-
       <section class="form-page js-mouse-move-container">
         <div class="form-page__img bg-dark-1">
           <div class="form-page-composition">

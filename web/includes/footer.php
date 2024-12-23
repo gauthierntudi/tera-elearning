@@ -13,7 +13,7 @@
               <div>
                 <a href="https://dataxell.com" target="_blank" class="text-13 lh-1">
                   <span>Created By</span>
-                  <img src="https://dataxell.com/img/dlogo.png" style="width:80px">
+                  <img src="/img/dlogo.png" style="width:80px">
                 </a>
               </div>
             </div>

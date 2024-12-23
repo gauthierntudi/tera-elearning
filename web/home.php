@@ -102,7 +102,6 @@ if (!isset($_SESSION['user_id'])) {
                 <p class="sectionTitle__text ">
                   Découvrez toutes les séries de formation du module Tera
                 </p>
-
               </div>
 
             </div>

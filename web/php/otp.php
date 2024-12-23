@@ -51,6 +51,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $_SESSION['postnom'] = $user['postnom'];
                 $_SESSION['telephone'] = $user['telephone'];
                 $_SESSION['role'] = $user['role'];
+                $_SESSION['isAdmin'] = $user['role'] == 'admin';
 
                 // Envoi de l'email de confirmation
                 //$confirmationResult = sendConfirmationEmail($email);

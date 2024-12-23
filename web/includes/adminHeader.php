@@ -11,8 +11,8 @@
 
                 <div class="header__logo ml-30 md:ml-20">
                   <a data-barba href="home">
-                    <img class="-light-d-none" src="img/logo-02.png" alt="logo" style="width: 160px;">
-                    <img class="-dark-d-none" src="img/logo-01.png" alt="logo" style="width: 160px;">
+                    <img class="-light-d-none" src="/img/logo-02.png" alt="logo" style="width: 160px;">
+                    <img class="-dark-d-none" src="/img/logo-01.png" alt="logo" style="width: 160px;">
                   </a>
                 </div>
               </div>
@@ -37,7 +37,7 @@
 
                 <div class="relative d-flex items-center ml-10">
                   <a href="#!" data-el-toggle=".js-profile-toggle">
-                    <img class="size-50" src="img/user.jpg" style="border-radius: 50px;">
+                    <img class="size-50" src="/img/user.jpg" style="border-radius: 50px;">
                   </a>
 
                   <div class="toggle-element js-profile-toggle">
@@ -47,7 +47,7 @@
                         <div class="sidebar -dashboard">
 
                           <div class="sidebar__item -is-active -dark-bg-dark-2">
-                            <a href="home" class="d-flex items-center text-17 lh-1 fw-500 -dark-text-white">
+                            <a href="/tera.admin/index.php" class="d-flex items-center text-17 lh-1 fw-500 -dark-text-white">
                               <i class="text-20 icon-discovery mr-15"></i>
                               Accueil
                             </a>
@@ -61,7 +61,7 @@
                           </div> -->
 
                           <div class="sidebar__item ">
-                            <a href="logout" class="d-flex items-center text-17 lh-1 fw-500 ">
+                            <a href="/logout" class="d-flex items-center text-17 lh-1 fw-500 ">
                               <i class="text-20 icon-power mr-15"></i>
                               Déconnexion
                             </a>

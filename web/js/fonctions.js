@@ -36,7 +36,6 @@ document.getElementById("login-form")?.addEventListener("submit", function(e) {
             const data = JSON.parse(text);  // Convertir le texte en JSON
             console.log('Réponse JSON:', data);  // Log de la réponse JSON pour débogage
 
-            hideLoader();
             if (data.success) {
                 iziToast.success({
                     title: 'Succès',
@@ -75,12 +74,13 @@ document.getElementById("login-form")?.addEventListener("submit", function(e) {
         }
     })
     .catch(error => {
-        hideLoader();
         console.error('Erreur AJAX:', error);  // Log de l'erreur
         iziToast.error({
             title: 'Erreur',
             message: 'Une erreur est survenue, veuillez réessayer.'
         });
+    }).finally(()=>{
+        hideLoader();
     });
 });
 
@@ -117,18 +117,7 @@ document.getElementById("submit-otp")?.addEventListener("click", function(e) {
                 message: data.message
             });
 
-            if (data.role === "abonne") {
-
-                //redirect to home courses
-                location.replace('home');
-
-            }else{
-
-                //redirect to home courses
-                location.replace('tera.admin/add.php');
-
-            }
-
+            location.replace('home');
 
         } else {
             iziToast.error({

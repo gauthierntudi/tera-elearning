@@ -24,12 +24,15 @@ if (!isset($_SESSION['user_id'])) {
 <link href="https://fonts.googleapis.com/css2?family=Work+Sans:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&amp;display=swap" rel="stylesheet">
 
 <link href="https://fonts.googleapis.com/css2?family=Material+Icons+Outlined" rel="stylesheet">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" referrerpolicy="no-referrer" />
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+<link rel="stylesheet" href="/css/all.min.css" referrerpolicy="no-referrer" />
+<link rel="stylesheet" href="/css/leaflet.css" />
 
 <!-- Stylesheets -->
 <link rel="stylesheet" href="css/vendors.css">
 <link rel="stylesheet" href="css/main.css">
+<link rel="stylesheet" type="text/css" href="css/output.css">
+<link rel='stylesheet' href='css/bootstrap.min.css' >
+<script type="text/javascript" src='js/series_function.js'></script>
 
 <title>Tera e-learning</title>
 </head>
@@ -105,15 +108,42 @@ if ($formationId <= 0) {
 }
 
 // Récupérer les détails de la formation
-$stmtFormation = $bdd->prepare("SELECT * FROM Formations WHERE id = :id");
+$stmtFormation = $bdd->prepare("SELECT Formations.id, Formations.title, Formations.description, Formations.category, Formations.created_at, Quiz.title as quizTitle, Quiz.questions, Evaluation.pourcentage FROM (Formations LEFT JOIN Quiz ON Formations.id = Quiz.formationId) LEFT JOIN Evaluation ON Evaluation.formationId = Formations.id WHERE id = :id ORDER BY Evaluation.date_added DESC LIMIT 1");
 $stmtFormation->bindParam(':id', $formationId, PDO::PARAM_INT);
 $stmtFormation->execute();
 $formation = $stmtFormation->fetch(PDO::FETCH_ASSOC);
+$questions;
+$quiz_action = 'quiz-add';
+$quiz_text = 'Ajouter quiz';
+$allow_evaluation = false;
+$pourcentage;
+$pourcentage_class;
 
 // Vérifier si la formation existe
 if (!$formation) {
     echo "Formation non trouvée.";
     exit;
+}
+
+$questions = $formation['questions'];
+$pourcentage = $formation['pourcentage'];
+
+if(isset($formation['pourcentage'])){
+    if(intval($pourcentage) > 50){
+        $pourcentage_class = 'text-success';
+    }
+    else if(intval($pourcentage) < 50){
+        $pourcentage_class = 'text-danger';
+    }
+    else{
+        $pourcentage_class = 'text-info';
+    }
+}
+
+if($questions){
+    $quiz_action = 'quiz-edit';
+    $allow_evaluation = true;
+    $quiz_text = 'Editer quiz';
 }
 
 // Récupérer les vidéos associées à cette formation
@@ -141,8 +171,11 @@ $firstVideo = $videosCount > 0 ? $videos[0] : null;
     <div class="page-header__bg">
         <div class="bg-image js-lazy" data-bg="img/event-single/bg.png"></div>
     </div>
+    <div id='quiz' class="bg-white w-full relative">
 
-    <div class="container">
+    </div>    
+
+    <div id='mainCont' class="container">
         <div class="page-header__content pt-80 pb-90">
             <div class="row y-gap-30 justify-between">
                 <div class="col-xl-6 col-lg-6">
@@ -225,6 +258,19 @@ $firstVideo = $videosCount > 0 ? $videos[0] : null;
                             </div>
                             <div class="text-white">Yes</div>
                         </div>
+                        <?php
+                            if(isset($pourcentage)){
+                                ?>
+                        <div class="d-flex justify-between py-8 border-bottom-light-2">
+                            <div class="d-flex items-center text-white">
+                                <div class="icon-infinity"></div>
+                                <div class="ml-10">Evaluation</div>
+                            </div>
+                            <div class="text-white <?php echo $pourcentage_class ?>"><?php echo $pourcentage ?></div>
+                        </div>
+                                <?php
+                            }
+                        ?>
                     </div>
                 </div>
 
@@ -266,10 +312,25 @@ $firstVideo = $videosCount > 0 ? $videos[0] : null;
                             <?php endforeach; ?>
                         </div>
 
-                        <div class="row x-gap-30 y-gap-20 pt-30">
-                            <div class="col-sm-12">
-                                <button class="button -md -outline-green-1 text-green-1 w-1/1">EVALUATION</button>
-                            </div>
+                        <div id='q-actions' class="row x-gap-30 y-gap-20 pt-30">
+                            <?php
+                                if($allow_evaluation){
+                                    ?>
+                                        <div class="col-sm-12">
+                                            <button data-action='play-quiz' class="button -md -outline-green-1 text-green-1 w-1/1">EVALUATION</button>
+                                        </div>
+                                    <?php
+                                }
+                            ?>
+                            <?php
+                                if(isset($_SESSION['isAdmin']) && $_SESSION['isAdmin']){
+                                    ?>
+                                    <div class="col-sm-12">
+                                        <button id='quizTrigger' data-action='<?php echo $quiz_action  ?>' class='button w-1/1 p-4 bg-black text-white'><?php echo $quiz_text ?></button>
+                                    </div>
+                                    <?php
+                                }
+                            ?>
                             <div class="col-sm-12">
                                 <button class="button -md -purple-1 text-white w-1/1">AJOUTER FAVORIS</button>
                             </div>
@@ -298,10 +359,45 @@ $firstVideo = $videosCount > 0 ? $videos[0] : null;
 <!-- barba container end -->
 
 <!-- JavaScript -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.1/chart.min.js" referrerpolicy="no-referrer"></script>
-<script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+<script src="/js/chart.min.js" referrerpolicy="no-referrer"></script>
+<script src="/js/leaflet.js"></script>
 <script src="js/vendors.js"></script>
 <script src="js/main.js"></script>
+<script src="/js/jquery-3.2.1.slim.min.js"></script>
+<script src="/js/popper.min.js"></script>
+<script type="text/javascript" src='/js/bootstrap.min.js'></script>
+<script crossorigin src="/js/react.development.js"></script>
+<script crossorigin src="/js/react-dom.development.js"></script>
+<script type="text/javascript" src='/js/quiz.js'></script>
+<script type="text/javascript">
+    var __formationId = <?php echo $formationId ?>;
+
+    <?php
+        if($questions){
+            ?>
+    try{
+        var __questions = <?php echo $questions; ?>;
+    }
+    catch(error){
+        console.error("Error parsing questions",error);
+    }
+            <?php
+        }
+    ?>
+</script>
+<script type="text/javascript">
+
+    window.addEventListener('load',function(){
+        let quizTrigger = document.getElementById('q-actions');
+
+        if(quizTrigger){
+            quizTrigger.onclick = showQuizForm;
+        }
+        else{
+            alert("No QuizTrigger found");
+        }
+    })
+</script>
 </body>
 
 </html>

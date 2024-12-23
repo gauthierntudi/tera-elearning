@@ -69,7 +69,10 @@ function showQuizForm(event){
 
 	let target = event.target,
 	other = document.getElementById('mainCont'),
-	action = target.getAttribute('data-action');
+	action = target.getAttribute('data-action'),
+	addVideo = document.getElementById('addVideo');
+
+	console.log("QUIZZI",action);
 
 	if(action){
 		switch(action){
@@ -172,6 +175,10 @@ function showQuizForm(event){
 
 				other.style.display = 'none';
 			}
+			break;
+		case 'video-add':
+			addVideo.className = addVideo.className.replace('d-none');
+			other.style.display = 'none';
 			break;
 		default:
 			alert("Unknwon action "+ action);

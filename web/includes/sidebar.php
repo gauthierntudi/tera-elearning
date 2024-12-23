@@ -14,9 +14,9 @@
                     </div>
 
                     <div class="sidebar__item ">
-                      <a href="home#allFormations" class="-dark-sidebar-white d-flex items-center text-17 lh-1 fw-500">
+                      <a href="/add-formation" class="-dark-sidebar-white d-flex items-center text-17 lh-1 fw-500">
                         <i class="text-20 icon-play-button mr-15"></i>
-                        formations
+                        Ajouter formations
                       </a>
                     </div>
 

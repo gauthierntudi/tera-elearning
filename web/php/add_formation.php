@@ -23,7 +23,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             ':category' => $category
         ]);
 
-        echo json_encode(['success' => true, 'message' => 'La formation a été ajoutée avec succès.']);
+        echo json_encode([
+            'success' => true, 
+            'message' => 'La formation a été ajoutée avec succès.',
+            'id' => $bdd->lastInsertId()
+        ]);
     } catch (Exception $e) {
         echo json_encode(['success' => false, 'message' => 'Erreur lors de l\'ajout de la formation: ' . $e->getMessage()]);
     }

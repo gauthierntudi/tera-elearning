@@ -33,7 +33,10 @@ if (!isset($_SESSION['user_id'])) {
 <link rel="stylesheet" type="text/css" href="css/output.css">
 <link rel='stylesheet' href='css/bootstrap.min.css' >
 <script type="text/javascript" src='js/series_function.js'></script>
-
+<!-- izitoast -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/izitoast/dist/css/iziToast.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/izitoast/dist/js/iziToast.min.js"></script>
+  <!-- izitoast -->
 <title>Tera e-learning</title>
 </head>
 
@@ -173,7 +176,11 @@ $firstVideo = $videosCount > 0 ? $videos[0] : null;
     </div>
     <div id='quiz' class="bg-white w-full relative">
 
-    </div>    
+    </div> 
+
+    <?php
+       include('includes/add-video.php')
+    ?>   
 
     <div id='mainCont' class="container">
         <div class="page-header__content pt-80 pb-90">
@@ -327,6 +334,9 @@ $firstVideo = $videosCount > 0 ? $videos[0] : null;
                                     ?>
                                     <div class="col-sm-12">
                                         <button id='quizTrigger' data-action='<?php echo $quiz_action  ?>' class='button w-1/1 p-4 bg-black text-white'><?php echo $quiz_text ?></button>
+                                    </div>
+                                    <div class="col-sm-12">
+                                        <button id='quizTrigger' data-action='video-add' class='button w-1/1 p-4 bg-primary text-white'>Ajouter une vidéo</button>
                                     </div>
                                     <?php
                                 }

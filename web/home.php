@@ -6,6 +6,27 @@ if (!isset($_SESSION['user_id'])) {
     header("Location: login");
     exit;
 }
+else{
+  require("php/db_connect.php");
+  require("php/utils.php");
+
+  $svgs = [
+    "air-pollution.svg",
+    "bar-chart-dollar.svg",
+    "building-ngo.svg",
+    "calculator-2.svg",
+    "calculator-money.svg",
+    "career-growth.svg",
+    "cloud-2.svg",
+    "crm-computer.svg",
+    "fire-burner.svg",
+    "grill-hot-alt.svg",
+    "grill-hot-alt01.svg",
+    "hand-taking-dollar.svg",
+    "seo-monitor.svg"
+  ];
+  $formations = get_formations();
+}
 ?>
 <!DOCTYPE html>
 <html lang="en" class="-dark-mode">
@@ -129,180 +150,35 @@ if (!isset($_SESSION['user_id'])) {
 
           <div class="overflow-hidden pt-50 js-section-slider" data-gap="30" data-loop data-slider-cols="xl-5 lg-4 md-3 sm-2" data-pagination="js-cat-slider-pag" data-nav-prev="js-cat-slider-prev" data-nav-next="js-cat-slider-next">
             <div class="swiper-wrapper">
-
-              <div class="swiper-slide h-100">
-                <div data-anim-child="slide-left delay-2">
-                  <a href="series-1">
-                  <div class="featureCard -type-1 -featureCard-hover-3">
-                    <div class="featureCard__content">
-                      <div class="featureCard__icon">
-                        <img src="img/featureCards/building-ngo.svg" style="width:50%">
+              <?php
+                $id = 0;
+                $length = count($svgs);
+                foreach ($formations as $key => $value) {
+                  ?>
+                  <div class="swiper-slide h-100">
+                    <div data-anim-child="slide-left delay-2">
+                      <a href="series-1">
+                      <div class="featureCard -type-1 -featureCard-hover-3">
+                        <div class="featureCard__content">
+                          <div class="featureCard__icon">
+                            <img src="img/featureCards/<?php echo $svgs[$id++ % $length] ?>" style="width:50%">
+                          </div>
+                          <div class="featureCard__title" style="font-size: 1em;line-height: 1.17em;">
+                            <?php
+                              echo $value['title'];
+                            ?>
+                          </div>
+                          <div class="featureCard__text">
+                            Webinaire
+                          </div>
+                        </div>
                       </div>
-                      <div class="featureCard__title" style="font-size: 1em;line-height: 1.17em;">
-                        Foundation for Programming
-                      </div>
-                      <div class="featureCard__text">
-                        Webinaire
-                      </div>
+                    </a>
                     </div>
                   </div>
-                </a>
-                </div>
-              </div>
-
-              <div class="swiper-slide h-100">
-                <div data-anim-child="slide-left delay-3">
-                  <a href="series-2">
-                  <div class="featureCard -type-1 -featureCard-hover-3">
-                    <div class="featureCard__content">
-                      <div class="featureCard__icon">
-                        <img src="img/featureCards/grill-hot-alt01.svg"  style="width:50%">
-                      </div>
-                      <div class="featureCard__title" style="font-size: .9em;line-height: 1em;">
-                        Design & Innovation of Improved Cookstoves
-                      </div>
-                      <div class="featureCard__text">
-                        Webinaire
-                      </div>
-                    </div>
-                  </div>
-                </a>
-                </div>
-              </div>
-
-              <div class="swiper-slide h-100">
-                <div data-anim-child="slide-left delay-4">
-                  <a href="series-3">
-                  <div class="featureCard -type-1 -featureCard-hover-3">
-                    <div class="featureCard__content">
-                      <div class="featureCard__icon">
-                        <img src="img/featureCards/air-pollution.svg" style="width:50%">
-                      </div>
-                      <div class="featureCard__title" style="font-size: 1em;line-height: 1.17em;">
-                        Artisanal to Industrial Production 
-                      </div>
-                      <div class="featureCard__text">Webinaire</div>
-                    </div>
-                  </div>
-                </a>
-                </div>
-              </div>
-
-              <div class="swiper-slide h-100">
-                <div data-anim-child="slide-left delay-5">
-                  <a href="series-4">
-                  <div class="featureCard -type-1 -featureCard-hover-3">
-                    <div class="featureCard__content">
-                      <div class="featureCard__icon">
-                        <img src="img/featureCards/fire-burner.svg" style="width:50%">
-                      </div>
-                      <div class="featureCard__title" style="font-size: 1em;line-height: 1.17em;">
-                        Combustibles - Ethanol, briquettes
-                      </div>
-                      <div class="featureCard__text">Webinaire</div>
-                    </div>
-                  </div>
-                  </a>
-                </div>
-              </div>
-
-              <div class="swiper-slide h-100">
-                <div data-anim-child="slide-left delay-6">
-                  <a href="series-5">
-                  <div class="featureCard -type-1 -featureCard-hover-3">
-                    <div class="featureCard__content">
-                      <div class="featureCard__icon">
-                        <img src="img/featureCards/career-growth.svg" style="width:50%">
-                      </div>
-                      <div class="featureCard__title" style="font-size: 1em;line-height: 1.17em;">
-                        Operations & Improving Business Management
-                      </div>
-                      <div class="featureCard__text">Webinaire</div>
-                    </div>
-                  </div>
-                </a>
-                </div>
-              </div>
-
-              
-
-              <div class="swiper-slide h-100">
-                <div data-anim-child="slide-left delay-7">
-                  <a href="series-7">
-                  <div class="featureCard -type-1 -featureCard-hover-3">
-                    <div class="featureCard__content">
-                      <div class="featureCard__icon">
-                        <img src="img/featureCards/trust-alt.svg" style="width:50%">
-                      </div>
-                      <div class="featureCard__title" style="font-size: 1em;line-height: 1.17em;">
-                        Partnerships and Distribution
-                      </div>
-                      <div class="featureCard__text">Webinaire</div>
-                    </div>
-                  </div>
-                </a>
-                </div>
-              </div>
-
-
-              <div class="swiper-slide h-100">
-                <div data-anim-child="slide-left delay-8">
-                  <a href="series-8">
-                  <div class="featureCard -type-1 -featureCard-hover-3">
-                    <div class="featureCard__content">
-                      <div class="featureCard__icon">
-                        <img src="img/featureCards/crm-computer.svg" style="width:50%">
-                      </div>
-                      <div class="featureCard__title" style="font-size: 1em;line-height: 1.17em;">
-                        Marketing and Sales
-                      </div>
-                      <div class="featureCard__text">Webinaire</div>
-                    </div>
-                  </div>
-                </a>
-                </div>
-              </div>
-
-
-              <div class="swiper-slide h-100">
-                <div data-anim-child="slide-left delay-8">
-                  <a href="series-9">
-                  <div class="featureCard -type-1 -featureCard-hover-3">
-                    <div class="featureCard__content">
-                      <div class="featureCard__icon">
-                        <img src="img/featureCards/calculator-money.svg" alt="icon" style="width:50%">
-                      </div>
-                      <div class="featureCard__title" style="font-size: 1em;line-height: 1.17em;">
-                        Access to Finance
-                      </div>
-                      <div class="featureCard__text">Webinaire</div>
-                    </div>
-                  </div>
-                </a>
-                </div>
-              </div>
-
-
-              <div class="swiper-slide h-100">
-                <div data-anim-child="slide-left delay-8">
-                  <a href="series-9">
-                  <div class="featureCard -type-1 -featureCard-hover-3">
-                    <div class="featureCard__content">
-                      <div class="featureCard__icon">
-                        <img src="img/featureCards/system-cloud.svg" alt="icon" style="width:50%">
-                      </div>
-                      <div class="featureCard__title" style="font-size: 1em;line-height: 1.17em;">
-                        Testing, M.E and data collection
-                      </div>
-                      <div class="featureCard__text">Webinaire</div>
-                    </div>
-                  </div>
-                </a>
-                </div>
-              </div>
-
-
-
+                  <?php
+                }
+              ?>
             </div>
           </div>
         </div>

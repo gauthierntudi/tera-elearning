@@ -111,8 +111,9 @@ if ($formationId <= 0) {
 }
 
 // Récupérer les détails de la formation
-$stmtFormation = $bdd->prepare("SELECT Formations.id, Formations.title, Formations.description, Formations.category, Formations.created_at, Quiz.title as quizTitle, Quiz.questions, Evaluation.pourcentage FROM (Formations LEFT JOIN Quiz ON Formations.id = Quiz.formationId) LEFT JOIN Evaluation ON Evaluation.formationId = Formations.id WHERE id = :id ORDER BY Evaluation.date_added DESC LIMIT 1");
+$stmtFormation = $bdd->prepare("SELECT Formations.id, Formations.title, Formations.description, Formations.category, Formations.created_at, Quiz.title as quizTitle, Quiz.questions, Evaluation.pourcentage FROM (Formations LEFT JOIN Quiz ON Formations.id = Quiz.formationId) LEFT JOIN Evaluation ON Evaluation.formationId = Formations.id WHERE id = :id AND Evaluation.abonneId = :sessionId ORDER BY Evaluation.date_added DESC LIMIT 1");
 $stmtFormation->bindParam(':id', $formationId, PDO::PARAM_INT);
+$stmtFormation->bindParam(':sessionId', $_SESSION['user_id'], PDO::PARAM_STR);
 $stmtFormation->execute();
 $formation = $stmtFormation->fetch(PDO::FETCH_ASSOC);
 $questions;
@@ -145,8 +146,11 @@ if(isset($formation['pourcentage'])){
 
 if($questions){
     $quiz_action = 'quiz-edit';
-    $allow_evaluation = true;
     $quiz_text = 'Editer quiz';
+
+    if(!$formation['pourcentage']){
+        $allow_evaluation = true;
+    }
 }
 
 // Récupérer les vidéos associées à cette formation

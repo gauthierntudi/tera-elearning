@@ -79,22 +79,55 @@ function showQuizForm(event){
 		case 'quiz-add':
 			try{
 				let quiz = document.getElementById('quiz'),
+				payload = {
+					onSave:function(newQuestionaires){
+						payload.loading = true;
+
+						Quiz.updateForm(root,payload);
+
+						quiz_pusher(newQuestionaires,'POST').then((success)=>{
+							if(success){
+								other.style.display = '';
+								root.unmount();
+								location.reload();
+							}
+							else{
+								payload.loading = false;
+
+								Quiz.updateForm(root, payload);
+								iziToast.error({
+									title:"Echec d'ajout",
+									message:"L'ajout du questionnaire n'a pas pu être effectué"
+								});
+							}
+						}).catch((error)=>{
+							payload.loading = false;
+
+							Quiz.updateForm(root, payload);
+
+							iziToast.error({
+								title:'Erreur',
+								message:"Une erreur est survenue lors de l'ajout du questionaire. Veuillez réesayer"
+							})
+						})
+					},
+					onClose:()=>{
+						root.unmount();
+
+						other.style.display = '';
+					},
+					onError:(errors)=>{
+						for(let id in errors){
+							iziToast.error({
+								title:'Erreur',
+								message: errors[id]
+							})
+						}
+					}
+				},
 				root;
 
-				other.style.display = 'none';
-				root = Quiz.renderForm(quiz,{ onSave:function(newQuestionaires){
-					quiz_pusher(newQuestionaires,'POST').then((success)=>{
-						if(success){
-							other.style.display = '';
-							root.unmount();
-							location.reload();
-						}
-					})
-				}, onClose:()=>{
-					root.unmount();
-
-					other.style.display = '';
-				} })
+				root = Quiz.renderForm(quiz,payload)
 
 				other.style.display = 'none';
 			}
@@ -105,19 +138,50 @@ function showQuizForm(event){
 		case 'quiz-edit':
 			if(__questions && __questions instanceof Array){
 				let quiz = document.getElementById('quiz'),
-				root = Quiz.renderForm(quiz,{ questions: __questions.concat(), onSave: function(newQuestionaires){
-					quiz_pusher(newQuestionaires,'PUT').then((success)=>{
-						console.log("success",success);
-						if(success){
-							location.reload();
-							other.style.display = '';
-							root.unmount();
+				payload = {
+					question: __questions.concat(),
+					title: __quiz_title,
+					onSave: function(newQuestionaires){
+						payload.loading = true;
+
+						Quiz.updateForm(root, payload)
+
+						quiz_pusher(newQuestionaires,'PUT').then((success)=>{
+							console.log("success",success);
+							if(success){
+								location.reload();
+								other.style.display = '';
+								root.unmount();
+							}
+							else{
+								payload.loading = false;
+
+								Quiz.updateForm(root,payload);
+							}
+						}).catch((error)=>{
+							payload.loading = false;
+							Quiz.updateForm(root,payload);
+
+							iziToast({
+								title:"Erreur",
+								message:"Une erreur est survenue lors de la modification du quiz. Veuillez réesayer"
+							})
+						});
+					},
+					onClose: function(){
+						root.unmount();
+						other.style.display = ''
+					},
+					onError: function(errors){
+						for(let id in errors){
+							iziToast.error({
+								title:'Erreur',
+								message: errors[id]
+							})
 						}
-					});
-				}, onClose:()=>{
-					root.unmount();
-					other.style.display = ''
-				} });
+					}
+				},
+				root = Quiz.renderForm(quiz, payload);
 
 				other.style.display = 'none';
 			}

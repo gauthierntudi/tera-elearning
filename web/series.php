@@ -6,6 +6,84 @@ if (!isset($_SESSION['user_id'])) {
     header("Location: login");
     exit;
 }
+
+require_once './php/db_connect.php';  // Connexion à la base de données
+
+// Récupérer l'ID de la formation depuis l'URL
+$formationId = isset($_GET['id']) ? (int)$_GET['id'] : 0;
+
+// Vérifier si l'ID de la formation est valide
+if ($formationId <= 0) {
+    echo "Formation non trouvée. Blabla";
+    echo "<pre>";
+    print_r($_SERVER);
+    echo "</pre>";
+    exit;
+}
+
+// Récupérer les détails de la formation
+$stmtFormation = $bdd->prepare("SELECT DISTINCT Formations.id, Formations.title, Formations.description, Formations.category, Formations.created_at, Quiz.title as quizTitle, Quiz.questions, Evaluation.pourcentage, Evaluation.date_added FROM (Formations LEFT JOIN Quiz ON Formations.id = Quiz.formationId) LEFT JOIN Evaluation ON Evaluation.formationId = Formations.id WHERE id = :id AND (ISNULL(Evaluation.abonneId) OR Evaluation.abonneId = :sessionId) ORDER BY Evaluation.date_added DESC LIMIT 1");
+$stmtFormation->bindParam(':id', $formationId, PDO::PARAM_INT);
+$stmtFormation->bindParam(':sessionId', $_SESSION['user_id'], PDO::PARAM_STR);
+$stmtFormation->execute();
+$formation = $stmtFormation->fetch(PDO::FETCH_ASSOC);
+$questions;
+$quiz_action = 'quiz-add';
+$quiz_text = 'Ajouter quiz';
+$allow_evaluation = false;
+$pourcentage;
+$pourcentage_class;
+
+// Vérifier si la formation existe
+if (!$formation) {
+    echo "Formation non trouvée.";
+    exit;
+}
+
+$questions = $formation['questions'];
+$pourcentage = $formation['pourcentage'];
+$quiz_title = $formation['quizTitle'];
+
+if(isset($formation['pourcentage'])){
+    if(intval($pourcentage) > 50){
+        $pourcentage_class = 'text-success';
+    }
+    else if(intval($pourcentage) < 50){
+        $pourcentage_class = 'text-danger';
+    }
+    else{
+        $pourcentage_class = 'text-info';
+    }
+}
+
+if($questions){
+    $quiz_action = 'quiz-edit';
+    $quiz_text = 'Editer quiz';
+
+    if($formation['pourcentage'] === null){
+        $allow_evaluation = true;
+    }
+}
+
+// Récupérer les vidéos associées à cette formation
+$stmtVideos = $bdd->prepare("SELECT id, title, duration, thumbnail_path FROM Videos WHERE formation_id = :formation_id");
+$stmtVideos->bindParam(':formation_id', $formationId, PDO::PARAM_INT);
+$stmtVideos->execute();
+$videos = $stmtVideos->fetchAll(PDO::FETCH_ASSOC);
+
+// Calculer la durée totale (en minutes) en sommant les durées de toutes les vidéos
+$totalDuration = 0;
+foreach ($videos as $video) {
+    $totalDuration += (int)$video['duration']; // Assurez-vous que la durée est en minutes
+}
+
+// Compter le nombre de vidéos associées à cette formation
+$videosCount = count($videos);
+
+// Sélectionner la première vidéo pour l'afficher comme vidéo principale
+$firstVideo = $videosCount > 0 ? $videos[0] : null;
+
+// Affichage du contenu HTML
 ?>
 <!DOCTYPE html>
 <html lang="en" class="-dark-mode">
@@ -41,6 +119,7 @@ if (!isset($_SESSION['user_id'])) {
 </head>
 
 <body class="preloader-visible" data-barba="wrapper">
+<h1><?php echo $formationId; ?></h1>
 <!-- preloader start -->
 <div class="preloader js-preloader">
 <div class="preloader__bg"></div>
@@ -96,84 +175,6 @@ if (!isset($_SESSION['user_id'])) {
         </div>
       </section>
 
-
-
-<?php
-require_once './php/db_connect.php';  // Connexion à la base de données
-
-// Récupérer l'ID de la formation depuis l'URL
-$formationId = isset($_GET['id']) ? (int)$_GET['id'] : 0;
-
-// Vérifier si l'ID de la formation est valide
-if ($formationId <= 0) {
-    echo "Formation non trouvée.";
-    exit;
-}
-
-// Récupérer les détails de la formation
-$stmtFormation = $bdd->prepare("SELECT Formations.id, Formations.title, Formations.description, Formations.category, Formations.created_at, Quiz.title as quizTitle, Quiz.questions, Evaluation.pourcentage FROM (Formations LEFT JOIN Quiz ON Formations.id = Quiz.formationId) LEFT JOIN Evaluation ON Evaluation.formationId = Formations.id WHERE id = :id AND Evaluation.abonneId = :sessionId ORDER BY Evaluation.date_added DESC LIMIT 1");
-$stmtFormation->bindParam(':id', $formationId, PDO::PARAM_INT);
-$stmtFormation->bindParam(':sessionId', $_SESSION['user_id'], PDO::PARAM_STR);
-$stmtFormation->execute();
-$formation = $stmtFormation->fetch(PDO::FETCH_ASSOC);
-$questions;
-$quiz_action = 'quiz-add';
-$quiz_text = 'Ajouter quiz';
-$allow_evaluation = false;
-$pourcentage;
-$pourcentage_class;
-
-// Vérifier si la formation existe
-if (!$formation) {
-    echo "Formation non trouvée.";
-    exit;
-}
-
-$questions = $formation['questions'];
-$pourcentage = $formation['pourcentage'];
-
-if(isset($formation['pourcentage'])){
-    if(intval($pourcentage) > 50){
-        $pourcentage_class = 'text-success';
-    }
-    else if(intval($pourcentage) < 50){
-        $pourcentage_class = 'text-danger';
-    }
-    else{
-        $pourcentage_class = 'text-info';
-    }
-}
-
-if($questions){
-    $quiz_action = 'quiz-edit';
-    $quiz_text = 'Editer quiz';
-
-    if($formation['pourcentage'] === null){
-        $allow_evaluation = true;
-    }
-}
-
-// Récupérer les vidéos associées à cette formation
-$stmtVideos = $bdd->prepare("SELECT id, title, duration, thumbnail_path FROM Videos WHERE formation_id = :formation_id");
-$stmtVideos->bindParam(':formation_id', $formationId, PDO::PARAM_INT);
-$stmtVideos->execute();
-$videos = $stmtVideos->fetchAll(PDO::FETCH_ASSOC);
-
-// Calculer la durée totale (en minutes) en sommant les durées de toutes les vidéos
-$totalDuration = 0;
-foreach ($videos as $video) {
-    $totalDuration += (int)$video['duration']; // Assurez-vous que la durée est en minutes
-}
-
-// Compter le nombre de vidéos associées à cette formation
-$videosCount = count($videos);
-
-// Sélectionner la première vidéo pour l'afficher comme vidéo principale
-$firstVideo = $videosCount > 0 ? $videos[0] : null;
-
-// Affichage du contenu HTML
-?>
-
 <section class="page-header -type-5 bg-dark-0">
     <div class="page-header__bg">
         <div class="bg-image js-lazy" data-bg="img/event-single/bg.png"></div>
@@ -183,7 +184,7 @@ $firstVideo = $videosCount > 0 ? $videos[0] : null;
     </div> 
 
     <?php
-       include('includes/add-video.php')
+       include('includes/add-video.php');
     ?>   
 
     <div id='mainCont' class="container">
@@ -212,7 +213,7 @@ $firstVideo = $videosCount > 0 ? $videos[0] : null;
                         <div class="bg-image size-30 rounded-full js-lazy" data-bg="img/icon.png"></div>
                         <div class="text-14 lh-1 ml-10 text-dark-3">Module de Formation Tera</div>
                     </div>
-
+                    
                     <div class="mt-30">
                         <div class="d-flex justify-between py-8 border-bottom-light-2">
                             <div class="d-flex items-center text-white">
@@ -391,6 +392,7 @@ $firstVideo = $videosCount > 0 ? $videos[0] : null;
             ?>
     try{
         var __questions = <?php echo $questions; ?>;
+        var __quiz_title = "<?php echo $quiz_title; ?>";
     }
     catch(error){
         console.error("Error parsing questions",error);

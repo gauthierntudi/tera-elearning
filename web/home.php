@@ -117,7 +117,6 @@ else{
             <div class="col-auto">
 
               <div class="sectionTitle ">
-
                 <h2 class="sectionTitle__title ">Les séries</h2>
 
                 <p class="sectionTitle__text ">

@@ -11,6 +11,7 @@ require_once './php/db_connect.php';  // Connexion à la base de données
 
 // Récupérer l'ID de la formation depuis l'URL
 $formationId = isset($_GET['id']) ? (int)$_GET['id'] : 0;
+$is_admin = $_SESSION['isAdmin'];
 
 // Vérifier si l'ID de la formation est valide
 if ($formationId <= 0) {
@@ -22,7 +23,7 @@ if ($formationId <= 0) {
 }
 
 // Récupérer les détails de la formation
-$stmtFormation = $bdd->prepare("SELECT DISTINCT Formations.id, Formations.title, Formations.description, Formations.category, Formations.created_at, Quiz.title as quizTitle, Quiz.questions, Evaluation.pourcentage, Evaluation.date_added FROM (Formations LEFT JOIN Quiz ON Formations.id = Quiz.formationId) LEFT JOIN Evaluation ON Evaluation.formationId = Formations.id WHERE id = :id AND (ISNULL(Evaluation.abonneId) OR Evaluation.abonneId = :sessionId) ORDER BY Evaluation.date_added DESC LIMIT 1");
+$stmtFormation = $bdd->prepare("SELECT DISTINCT Formations.id, Formations.title, Formations.description, Formations.category, Formations.created_at, Quiz.title as quizTitle, Quiz.questions, Evaluation.pourcentage, Evaluation.date_added, (SELECT count(*) FROM Inscription WHERE Inscription.formationId = :id) as Abonnees, ( SELECT true FROM Inscription WHERE formationId = :id AND abonneId = :sessionId LIMIT 1 ) as is_subscribed FROM ((Formations LEFT JOIN Quiz ON Formations.id = Quiz.formationId) LEFT JOIN Evaluation ON Evaluation.formationId = Formations.id) LEFT JOIN Inscription ON Formations.id = Inscription.formationId  WHERE Formations.id = :id AND (ISNULL(Evaluation.abonneId) OR Evaluation.abonneId = :sessionId) ORDER BY Evaluation.date_added DESC LIMIT 1");
 $stmtFormation->bindParam(':id', $formationId, PDO::PARAM_INT);
 $stmtFormation->bindParam(':sessionId', $_SESSION['user_id'], PDO::PARAM_STR);
 $stmtFormation->execute();
@@ -43,6 +44,8 @@ if (!$formation) {
 $questions = $formation['questions'];
 $pourcentage = $formation['pourcentage'];
 $quiz_title = $formation['quizTitle'];
+$abonneesNumber = $formation['Abonnees'];
+$is_subscribed = $formation['is_subscribed'];
 
 if(isset($formation['pourcentage'])){
     if(intval($pourcentage) > 50){
@@ -154,21 +157,16 @@ $firstVideo = $videosCount > 0 ? $videos[0] : null;
               <div class="breadcrumbs__content">
 
                 <div class="breadcrumbs__item text-dark-3">
-                  <a href="#">Home</a>
+                  <a href="/">Home</a>
                 </div>
 
                 <div class="breadcrumbs__item text-dark-3">
-                  <a href="#">All courses</a>
+                  <a href="/home">Formations</a>
                 </div>
 
                 <div class="breadcrumbs__item text-dark-3">
-                  <a href="#">User Experience Design</a>
+                  <a href="/series-<?php echo $formationId ?>"><?php echo $formation['title']; ?></a>
                 </div>
-
-                <div class="breadcrumbs__item text-dark-3">
-                  <a href="#">User Interface</a>
-                </div>
-
               </div>
             </div>
           </div>
@@ -213,7 +211,7 @@ $firstVideo = $videosCount > 0 ? $videos[0] : null;
                         <div class="bg-image size-30 rounded-full js-lazy" data-bg="img/icon.png"></div>
                         <div class="text-14 lh-1 ml-10 text-dark-3">Module de Formation Tera</div>
                     </div>
-                    
+
                     <div class="mt-30">
                         <div class="d-flex justify-between py-8 border-bottom-light-2">
                             <div class="d-flex items-center text-white">
@@ -270,6 +268,13 @@ $firstVideo = $videosCount > 0 ? $videos[0] : null;
                             </div>
                             <div class="text-white">Yes</div>
                         </div>
+                        <div class="d-flex justify-between py-8 border-bottom-light-2">
+                            <div class="d-flex items-center text-white">
+                                <div class="icon-person-3"></div>
+                                <div class="ml-10">Abonnées</div>
+                            </div>
+                            <div class="text-white"><?php echo ($abonneesNumber)? $abonneesNumber : 0 ?></div>
+                        </div>
                         <?php
                             if(isset($pourcentage)){
                                 ?>
@@ -292,9 +297,15 @@ $firstVideo = $videosCount > 0 ? $videos[0] : null;
                         <?php if ($firstVideo): ?>
                             <img class="w-1/1" src="<?php echo $firstVideo['thumbnail_path']; ?>" style="border-radius: 20px;">
                             <div class="absolute-full-center d-flex justify-center items-center">
+                                <?php
+                                    if($is_subscribed || $is_admin){
+                                        ?>
                                 <a href="video-<?php echo $firstVideo['id']; ?>" class="d-flex justify-center items-center size-60 rounded-full bg-white">
                                     <div class="icon-play text-18"></div>
                                 </a>
+                                        <?php
+                                    }
+                                ?>
                             </div>
                         <?php else: ?>
                             <p>Aucune vidéo disponible pour cette formation.</p>
@@ -318,15 +329,24 @@ $firstVideo = $videosCount > 0 ? $videos[0] : null;
                                     </div>
 
                                     <div class="d-flex x-gap-20 items-center">
-                                        <a href="video-<?php echo $video['id']; ?>" class="text-14 lh-1 text-purple-1 underline"><?php echo $video['duration']; ?> min</a>
+                                        <a <?php 
+                                        if($is_subscribed || $is_admin){
+                                            echo "href='video-".$video['id']."'";
+                                        }
+                                        else{
+                                            echo "#";
+                                        } 
+
+                                         ?> class="text-14 lh-1 text-purple-1 underline"><?php echo $video['duration']; ?> min</a>
                                     </div>
                                 </div>
                             <?php endforeach; ?>
                         </div>
 
                         <div id='q-actions' class="row x-gap-30 y-gap-20 pt-30">
+
                             <?php
-                                if($allow_evaluation){
+                                if($allow_evaluation && ($is_subscribed || $is_admin)){
                                     ?>
                                         <div class="col-sm-12">
                                             <button data-action='play-quiz' class="button -md -outline-green-1 text-green-1 w-1/1">EVALUATION</button>
@@ -335,7 +355,7 @@ $firstVideo = $videosCount > 0 ? $videos[0] : null;
                                 }
                             ?>
                             <?php
-                                if(isset($_SESSION['isAdmin']) && $_SESSION['isAdmin']){
+                                if((isset($_SESSION['isAdmin']) && $_SESSION['isAdmin']) || $is_subscribed){
                                     ?>
                                     <div class="col-sm-12">
                                         <button id='quizTrigger' data-action='<?php echo $quiz_action  ?>' class='button w-1/1 p-4 bg-black text-white'><?php echo $quiz_text ?></button>
@@ -346,9 +366,15 @@ $firstVideo = $videosCount > 0 ? $videos[0] : null;
                                     <?php
                                 }
                             ?>
-                            <div class="col-sm-12">
-                                <button class="button -md -purple-1 text-white w-1/1">AJOUTER FAVORIS</button>
-                            </div>
+                            <?php
+                                if(!$is_subscribed){
+                                    ?>
+                                    <div class="col-sm-12">
+                                        <button data-action='subscribe-user' class="button -md -purple-1 text-white w-1/1">S'INSCRIRE</button>
+                                    </div>
+                                    <?php
+                                }
+                            ?>
                         </div>
                     </div>
                 </div>
@@ -402,7 +428,6 @@ $firstVideo = $videosCount > 0 ? $videos[0] : null;
     ?>
 </script>
 <script type="text/javascript">
-
     window.addEventListener('load',function(){
         let quizTrigger = document.getElementById('q-actions');
 

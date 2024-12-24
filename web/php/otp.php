@@ -35,9 +35,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         // Vérifier si l'OTP existe pour cet email dans la base de données
         try {
-            $stmt = $bdd->prepare("SELECT * FROM Abonnes WHERE email = :email");
+            $stmt = $bdd->prepare("SELECT DISTINCT Abonnes.id, Abonnes.otp_code, Abonnes.otp_expiry, Abonnes.email, Abonnes.nom, Abonnes.postnom, Abonnes.telephone, Abonnes.role,Inscription.formationId FROM Abonnes LEFT JOIN Inscription ON Abonnes.id = Inscription.abonneId WHERE email = :email");
             $stmt->execute([':email' => $email]);
-            $user = $stmt->fetch();
+            $user_datas = $stmt->fetchAll(PDO::FETCH_BOTH);
+            $user = (count($user_datas) > 0)? $user_datas[0] : null;
 
             if ($user && $user['otp_code'] === $otp && strtotime($user['otp_expiry']) > time()) {
                 // Mettre à jour le statut de l'abonné dans la base de données
@@ -52,6 +53,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $_SESSION['telephone'] = $user['telephone'];
                 $_SESSION['role'] = $user['role'];
                 $_SESSION['isAdmin'] = $user['role'] == 'admin';
+                $_SESSION['abonnements'] = array_map(fn($value): int => ($value['formationId'])? $value['formationId'] : 0 , $user_datas);
 
                 // Envoi de l'email de confirmation
                 //$confirmationResult = sendConfirmationEmail($email);

@@ -244,6 +244,52 @@ function showQuizForm(event){
 			addVideo.className = addVideo.className.replace('d-none');
 			other.style.display = 'none';
 			break;
+		case 'subscribe-user':
+				let id = 10;
+
+				iziToast.info({
+					title:"Inscription en cours",
+					id: id
+				})
+
+				fetch('/php/inscription.php',{
+					method:'POST',
+					headers:{'content-type':'application/json'},
+					body: JSON.stringify({
+						formationId: __formationId
+					})
+				}).then((response)=>{
+					if(response.status == 201){
+						iziToast.success({
+							title:"Inscription effectué",
+							id: id
+						})
+
+						setTimeout(()=>{
+							location.reload();
+						},[1000]);
+					}
+					else{
+						iziToast.error({
+							title:"Echec",
+							message:"L'inscription n'a pas pu etre effectué",
+							id:id
+						})
+
+						response.text((text)=>{
+							console.error("Serveur message",text);
+						}).catch((error)=>{
+							console.error("Server returned error",error);
+						})
+					}
+				}).catch((error)=>{
+					iziToast.error({
+						title:"Erreur",
+						id:id,
+						message:"Une erreur est survenue lors de l'inscription"
+					})
+				})
+			break;
 		default:
 			alert("Unknwon action "+ action);
 		}

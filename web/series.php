@@ -273,7 +273,7 @@ $firstVideo = $videosCount > 0 ? $videos[0] : null;
                                 <div class="icon-person-3"></div>
                                 <div class="ml-10">Abonnées</div>
                             </div>
-                            <div class="text-white"><?php echo ($abonneesNumber)? $abonneesNumber : 0 ?></div>
+                            <div class="text-white"><?php echo ($abonneesNumber)? ($is_admin)? "<a href='stats-$formationId'>$abonneesNumber</a>" : $abonneesNumber : 0 ?></div>
                         </div>
                         <?php
                             if(isset($pourcentage)){
@@ -355,7 +355,7 @@ $firstVideo = $videosCount > 0 ? $videos[0] : null;
                                 }
                             ?>
                             <?php
-                                if((isset($_SESSION['isAdmin']) && $_SESSION['isAdmin']) || $is_subscribed){
+                                if($is_admin){
                                     ?>
                                     <div class="col-sm-12">
                                         <button id='quizTrigger' data-action='<?php echo $quiz_action  ?>' class='button w-1/1 p-4 bg-black text-white'><?php echo $quiz_text ?></button>

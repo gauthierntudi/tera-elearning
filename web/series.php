@@ -148,7 +148,7 @@ if($questions){
     $quiz_action = 'quiz-edit';
     $quiz_text = 'Editer quiz';
 
-    if(!$formation['pourcentage']){
+    if($formation['pourcentage'] === null){
         $allow_evaluation = true;
     }
 }

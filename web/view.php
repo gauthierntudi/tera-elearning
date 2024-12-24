@@ -35,6 +35,7 @@ $stmtFormation = $bdd->prepare("SELECT * FROM Formations WHERE id = :formation_i
 $stmtFormation->bindParam(':formation_id', $video['formation_id'], PDO::PARAM_INT);
 $stmtFormation->execute();
 $formation = $stmtFormation->fetch(PDO::FETCH_ASSOC);
+$video_url = $video['video_path'];
 ?>
 
 <!DOCTYPE html>
@@ -122,7 +123,7 @@ background-color: #6440fb !important;
             <div class="col-xl-6 col-lg-6">
                 <!-- Vidéo Player personnalisé avec Video.js -->
                 <video id="video-player" class="video-js vjs-default-skin vjs-big-play-centered" controls>
-                    <source src="<?php echo $video['video_path']; ?>" type="video/mp4">
+                    <source id='video-source' type="video/mp4">
                     Votre navigateur ne supporte pas la lecture de vidéos.
                 </video>
 
@@ -210,42 +211,50 @@ background-color: #6440fb !important;
 <script src="js/main.js"></script>
 
 <script>
-// Initialiser le lecteur vidéo avec Video.js
-var player = videojs('video-player', {
-controls: true,
-autoplay: true,
-preload: 'auto',
-theme: '#6440fb',  // Personnalisation de la couleur du thème
-controlBar: {
-playToggle: true,
-volumePanel: true,
-fullscreenToggle: true,
-progressControl: true,
-currentTimeDisplay: true,
-timeDivider: true,
-durationDisplay: true,
-},
-});
 
-// Ajouter des boutons personnalisés pour avancer et reculer de 10 secondes
-var skipForward = document.createElement('button');
-skipForward.innerHTML = '▶ 10s';
-skipForward.classList.add('vjs-control');
-skipForward.addEventListener('click', function () {
-player.currentTime(player.currentTime() + 10);  // Avancer de 10 secondes
-});
 
-var skipBackward = document.createElement('button');
-skipBackward.innerHTML = '◀ 10s';
-skipBackward.classList.add('vjs-control');
-skipBackward.addEventListener('click', function () {
-player.currentTime(player.currentTime() - 10);  // Reculer de 10 secondes
-});
+var video_source = document.getElementById('video-source');
 
-// Ajouter ces boutons au lecteur
-var controls = document.querySelector('.vjs-control-bar');
-controls.insertBefore(skipBackward, controls.firstChild);
-controls.appendChild(skipForward);
+video_source.src = "<?php echo $video_url; ?>";
+
+setTimeout(()=>{
+    // Initialiser le lecteur vidéo avec Video.js
+    var player = videojs('video-player', {
+    controls: true,
+    autoplay: true,
+    preload: 'auto',
+    theme: '#6440fb',  // Personnalisation de la couleur du thème
+    controlBar: {
+    playToggle: true,
+    volumePanel: true,
+    fullscreenToggle: true,
+    progressControl: true,
+    currentTimeDisplay: true,
+    timeDivider: true,
+    durationDisplay: true,
+    },
+    });
+
+    // Ajouter des boutons personnalisés pour avancer et reculer de 10 secondes
+    var skipForward = document.createElement('button');
+    skipForward.innerHTML = '▶ 10s';
+    skipForward.classList.add('vjs-control');
+    skipForward.addEventListener('click', function () {
+    player.currentTime(player.currentTime() + 10);  // Avancer de 10 secondes
+    });
+
+    var skipBackward = document.createElement('button');
+    skipBackward.innerHTML = '◀ 10s';
+    skipBackward.classList.add('vjs-control');
+    skipBackward.addEventListener('click', function () {
+    player.currentTime(player.currentTime() - 10);  // Reculer de 10 secondes
+    });
+
+    // Ajouter ces boutons au lecteur
+    var controls = document.querySelector('.vjs-control-bar');
+    controls.insertBefore(skipBackward, controls.firstChild);
+    controls.appendChild(skipForward);
+},50);
 </script>
 
 </body>

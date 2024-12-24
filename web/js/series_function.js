@@ -139,7 +139,7 @@ function showQuizForm(event){
 			if(__questions && __questions instanceof Array){
 				let quiz = document.getElementById('quiz'),
 				payload = {
-					question: __questions.concat(),
+					questions: __questions.concat(),
 					title: __quiz_title,
 					onSave: function(newQuestionaires){
 						payload.loading = true;

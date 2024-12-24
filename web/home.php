@@ -157,7 +157,7 @@ else{
                   ?>
                   <div class="swiper-slide h-100">
                     <div data-anim-child="slide-left delay-2">
-                      <a href="series-1">
+                      <a href="series-<?php echo $value['id']; ?>">
                       <div class="featureCard -type-1 -featureCard-hover-3">
                         <div class="featureCard__content">
                           <div class="featureCard__icon">

@@ -1,0 +1,23 @@
+RewriteEngine On
+RewriteBase /
+
+# Réécrire les URLs des vidéos pour qu'elles soient lisibles (par exemple, /video/6)
+RewriteRule ^video-([0-9]+)$ view.php?id=$1 [L,QSA]
+
+# Réécrire les URLs des séries pour qu'elles soient lisibles (par exemple, /series/5)
+RewriteRule ^series-([0-9]+)$ series.php?id=$1 [L,QSA]
+
+# Réécrire les autres URLs
+RewriteRule ^home$ home.php [L,QSA]
+RewriteRule ^logout$ out.php [L,QSA]
+RewriteRule ^login$ login.php [L,QSA]
+RewriteRule ^otp$ otp.php [L,QSA]
+RewriteRule ^sign-up$ signup.php [L,QSA]
+
+# Gestion des erreurs 404
+ErrorDocument 404 /404.php
+
+# Rediriger toute autre requête vers la page 404
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^(.*)$ /404.php [L]
